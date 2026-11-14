@@ -1,17 +1,15 @@
 {
- "version_code": 8,
- "version_name": "0.7.0",
- "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.7.0.apk",
+ "version_code": 9,
+ "version_name": "1.0.0",
+ "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-1.0.0.apk",
  "changelog_fa": [
-  "رفع برعکس شدن آمار گزارش‌ها — آمار دقیقاً مال هر تیمه",
-  "ظاهر تازه: بوم ذغالی شیک با پرچم و لوگوی واقعی تیم‌ها",
-  "کارت‌های «تحلیل‌های آماده» و جستجو، مثل وب و بهتر",
-  "اتفاقات بازی‌های تموم‌شده هم تایم‌لاین دوسویه شدن"
+  "نسخه ۱.۰.۰: دقیقاً همون نسخه وب که دوست داشتی، حالا بومی و روان",
+  "همه‌چیز وب اینجاست: تنظیمات، تم روشن و تیره، دوزبانه، حمایت از ما",
+  "کارت‌ها جمع‌وجور شدن و نتیجه زنده درست کنار اسم هر تیم می‌شینه"
  ],
  "changelog_en": [
-  "Fixed the mirrored report stats — every number now belongs to its own team",
-  "A fresh look: a sleek charcoal canvas with real team crests and flags",
-  "Ready-analysis cards and team search on the home screen, like the web and better",
-  "Finished matches' events are now the two-sided timeline too"
+  "Version 1.0.0: exactly the web version you loved, now native and smooth",
+  "Everything from the web is here: settings, light and dark themes, bilingual, Support Us",
+  "Cards are compact again, and the live score sits right beside its own team's name"
  ]
 }
