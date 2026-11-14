@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-14T21:06+03:30",
+ "generated_at": "2026-11-14T23:03+03:30",
  "today": "2026-11-14",
  "days": [
   {
@@ -65,14 +65,14 @@
       },
       {
        "home": "Austria",
-       "away": "Rep. Of Ireland",
+       "away": "Republic of Ireland",
        "time": "23:15",
        "status": "NS",
        "home_goals": null,
        "away_goals": null,
        "referee": "Irfan Peljto",
-       "espn": null,
-       "sheet": null
+       "espn": 401861170,
+       "sheet": 10
       },
       {
        "home": "Romania",
@@ -94,18 +94,7 @@
        "away_goals": null,
        "referee": "Simone Sozza",
        "espn": 401861166,
-       "sheet": null
-      },
-      {
-       "home": "Austria",
-       "away": "Republic of Ireland",
-       "time": "23:15",
-       "status": "NS",
-       "home_goals": null,
-       "away_goals": null,
-       "referee": null,
-       "espn": 401861170,
-       "sheet": 10
+       "sheet": 6
       }
      ]
     },
@@ -318,7 +307,7 @@
        "away_goals": null,
        "referee": null,
        "espn": 401929774,
-       "sheet": null
+       "sheet": 5
       }
      ]
     },
@@ -947,23 +936,12 @@
       },
       {
        "home": "Scotland",
-       "away": "FYR Macedonia",
-       "time": "23:15",
-       "status": "2H",
-       "home_goals": 1,
-       "away_goals": 0,
-       "referee": "Michal Ocenas",
-       "espn": null,
-       "sheet": null
-      },
-      {
-       "home": "Scotland",
        "away": "North Macedonia",
        "time": "23:15",
        "status": "FT",
        "home_goals": 2,
        "away_goals": 1,
-       "referee": null,
+       "referee": "Michal Ocenas",
        "espn": 401861161,
        "sheet": null
       }
@@ -1017,14 +995,14 @@
        "sheet": null
       },
       {
-       "home": "Cape Verde Islands",
+       "home": "Cape Verde",
        "away": "Liberia",
        "time": "19:30",
        "status": "FT",
        "home_goals": 4,
        "away_goals": 2,
        "referee": "Ahmed, Liban Abdourazak",
-       "espn": null,
+       "espn": 401927186,
        "sheet": null
       },
       {
@@ -1069,17 +1047,6 @@
        "away_goals": 2,
        "referee": "Hamza El Fariq",
        "espn": 401927205,
-       "sheet": null
-      },
-      {
-       "home": "Cape Verde",
-       "away": "Liberia",
-       "time": "19:30",
-       "status": "FT",
-       "home_goals": 4,
-       "away_goals": 2,
-       "referee": null,
-       "espn": 401927186,
        "sheet": null
       },
       {
