@@ -333,7 +333,7 @@
 
 <script>
 const DATA = {
- "generated_at": "2026-11-14T19:21+03:30",
+ "generated_at": "2026-11-14T20:14+03:30",
  "today": "2026-11-14",
  "days": [
   {
@@ -129695,8 +129695,13 @@ function renderMatches() {
       return `<span class="chip${d.date === DATA.today ? " on" : ""}" onclick="document.getElementById('day-${d.date}').scrollIntoView({behavior:'smooth'})">${short}</span>`;
     }).join("") + `</div>` : "";
   h += chips;
-  h += `<div class="section-title">${t("analysis_ready")}<small>${DATA.sheets.length}</small></div>`;
-  DATA.sheets.map((s, i) => [s, i])
+  // A finished match's pre-match analysis leaves today's analyses
+  // too (Mahdi, 2026-11-14 — the Top Picks cleanup extended): the
+  // filter uses the live poll's finished set, see sheetFinished.
+  const openSheets = DATA.sheets.map((s, i) => [s, i])
+    .filter(([s]) => !sheetFinished(s));
+  h += `<div class="section-title">${t("analysis_ready")}<small>${openSheets.length}</small></div>`;
+  openSheets
     .sort((a, b) => ((a[0].fixture ? a[0].fixture.date + a[0].fixture.time : "9999"))
       .localeCompare(b[0].fixture ? b[0].fixture.date + b[0].fixture.time : "9999"))
     .slice(0, sheetsOpen ? undefined : 3)
@@ -129708,8 +129713,8 @@ function renderMatches() {
       <span class="pill">${t("btts")} · <b>${fmt(s.goals.btts_yes)}%</b></span>
       ${s.stats.corners ? `<span class="pill">${t("corners")} · <b>${fmt(s.stats.corners.expected_total)}</b></span>` : ""}</div></div>`;
   });
-  if (DATA.sheets.length > 3)
-    h += `<div class="morebtn" onclick="sheetsOpen=!sheetsOpen;renderMatches()">${sheetsOpen ? t("show_less") : t("show_all") + " · " + DATA.sheets.length}</div>`;
+  if (openSheets.length > 3)
+    h += `<div class="morebtn" onclick="sheetsOpen=!sheetsOpen;renderMatches()">${sheetsOpen ? t("show_less") : t("show_all") + " · " + openSheets.length}</div>`;
   DATA.days.forEach((d, di) => {
     const leagues = d.leagues.map(lg => {
       const ms = lg.matches.filter(m => !query ||
@@ -130256,6 +130261,13 @@ function pickFinished(p) {
   const [ph, pa] = p.match.split(" - ");
   return !!liveFinPairs[pairKey(ph, pa)];
 }
+// The same finished test for an analysis sheet itself: once its
+// match is over, its pre-match analysis card leaves the Matches
+// list (Mahdi, 2026-11-14 — analyses get the picks cleanup too).
+function sheetFinished(s) {
+  if (s.espn && liveFinIds[s.espn]) return true;
+  return !!liveFinPairs[pairKey(s.home, s.away)];
+}
 function tehranDates() {
   const f = d => d.toLocaleDateString("en-CA", { timeZone: "Asia/Tehran" }).replace(/-/g, "");
   const now = new Date();
@@ -130324,13 +130336,16 @@ async function pollLive() {
       const mv = document.getElementById("view-matches");
       if (mv.classList.contains("active") && !query) renderMatches();
     }
-    // Picks cleanup (render-on-change, same discipline): only when
-    // the finished set itself changed, and only an open Picks view
-    // re-renders — a closed one filters on its next open anyway.
+    // Finished-match cleanup (render-on-change, same discipline):
+    // only when the finished set itself changed, and only open
+    // Picks / Matches views re-render — a closed one filters on
+    // its next open anyway.
     const finSig = Object.keys(finPairs).sort().join(",");
     if (finSig !== liveFinSig) {
       liveFinSig = finSig;
       if (document.getElementById("view-picks").classList.contains("active")) renderPicks();
+      const mvf = document.getElementById("view-matches");
+      if (mvf.classList.contains("active") && !query) renderMatches();
     }
     if (liveDetail) {
       if (byId[liveDetail.id]) renderLiveDetail();
