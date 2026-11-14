@@ -14,11 +14,13 @@
     --bg1: #0a1120; --bg2: #0e1e33; --panel: rgba(255,255,255,.07);
     --panel2: rgba(255,255,255,.045); --line: rgba(255,255,255,.13);
     --text: #eef4fb; --muted: #9db2c8; --chip: rgba(255,255,255,.09);
+    --card: rgba(17, 30, 51, .82);
   }
   [data-theme="light"] {
     --bg1: #e9f1f8; --bg2: #dbe9f5; --panel: rgba(255,255,255,.62);
     --panel2: rgba(255,255,255,.45); --line: rgba(23,52,84,.12);
     --text: #122539; --muted: #5b728c; --chip: rgba(23,52,84,.07);
+    --card: rgba(249, 252, 254, .88);
   }
   body {
     font-family: "Segoe UI", Tahoma, system-ui, -apple-system, sans-serif;
@@ -31,8 +33,15 @@
   }
   .shell { max-width: 460px; margin: 0 auto; padding: 0 14px 108px; }
   .glass {
-    background: var(--panel); border: 1px solid var(--line);
+    background: var(--card); border: 1px solid var(--line);
     border-radius: var(--radius);
+    box-shadow: 0 4px 14px rgba(3,10,20,.13);
+  }
+  /* Real backdrop blur is kept ONLY on the fixed chrome (header,
+     bottom nav); cards use the --card solid above — same glass
+     look, a fraction of the GPU cost on budget phones. */
+  header.top, nav.bottom {
+    background: var(--panel);
     backdrop-filter: blur(18px) saturate(1.35);
     -webkit-backdrop-filter: blur(18px) saturate(1.35);
     box-shadow: 0 10px 30px rgba(3,10,20,.18);
@@ -177,7 +186,7 @@
   }
   .sheet .row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 700; }
   .switch { width: 50px; height: 28px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line); position: relative; cursor: pointer; }
-  .switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: .2s; }
+  .switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--muted); transition: transform .2s ease, background-color .2s ease; }
   .switch.on { background: var(--accent); }
   .switch.on::after { transform: translateX(-20px); background: #fff; }
   [dir="ltr"] .switch.on::after { transform: translateX(20px); }
@@ -206,6 +215,18 @@
   .livecard .lmin { color: #f44336; font-weight: 900; font-size: 13px; text-align: center; margin-top: 2px; }
   .livecard .scorers { font-size: 12px; color: var(--muted); line-height: 1.9; margin-top: 7px;
     border-top: 1px dashed var(--line); padding-top: 7px; }
+  /* Perf: off-screen repeated blocks skip style/layout/paint until
+     scrolled near ("auto" remembers the real size after first render,
+     so the scrollbar stays stable). Big scroll-jank win on budget GPUs. */
+  .league { content-visibility: auto; contain-intrinsic-size: auto 340px; }
+  .sheetcard { content-visibility: auto; contain-intrinsic-size: auto 120px; }
+  .livecard { contain-intrinsic-size: auto 190px; }
+  .pick { content-visibility: auto; contain-intrinsic-size: auto 66px; }
+  .acc { content-visibility: auto; contain-intrinsic-size: auto 48px; }
+  .mrow { content-visibility: auto; contain-intrinsic-size: auto 40px; }
+  .cmprow { content-visibility: auto; contain-intrinsic-size: auto 54px; }
+  .prow { content-visibility: auto; contain-intrinsic-size: auto 76px; }
+  .hist .hrow { content-visibility: auto; contain-intrinsic-size: auto 34px; }
 </style>
 </head>
 <body>
@@ -69937,6 +69958,17 @@ const ESPN_API = "https://site.api.espn.com/apis/site/v2/sports/soccer";
 let liveById = {}, liveByPair = {}, liveSoon = [], liveDetail = null;
 let liveTimer = null, liveDetailTimer = null, liveBusy = false;
 let liveDetailSig = "";
+let liveSig = "";
+// Cheap fingerprint of everything the Matches/Live lists display.
+// The poller compares it before touching the DOM: an unchanged
+// payload (the common case between goals/minutes) must not trigger
+// a full innerHTML rebuild of long lists on a budget phone.
+function liveSigOf() {
+  const parts = Object.values(liveById).map(p =>
+    [p.id, p.hg, p.ag, p.clock, p.reds.home, p.reds.away,
+     p.scorers.map(s => s.min + s.name).join(",")].join(":"));
+  return parts.sort().join(";") + "#" + liveSoon.map(p => p.id).join(",");
+}
 const liveSummaries = {};
 const CLUB_ALIASES = { "man united": "manchester united",
   "man city": "manchester city", "paris sg": "paris saint germain",
@@ -70010,7 +70042,16 @@ async function pollLive() {
     }));
     liveById = byId; liveByPair = byPair;
     liveSoon = soon.sort((a, b) => a.ts - b.ts);
-    if (document.getElementById("view-live").classList.contains("active")) renderLive();
+    // Render-on-change: only the visible list re-renders, and only
+    // when the live payload actually changed (score, clock, scorer,
+    // red card, soon list). Hidden tabs are never re-rendered.
+    const changed = liveSigOf() !== liveSig;
+    if (changed) {
+      liveSig = liveSigOf();
+      if (document.getElementById("view-live").classList.contains("active")) renderLive();
+      const mv = document.getElementById("view-matches");
+      if (mv.classList.contains("active") && !query) renderMatches();
+    }
     if (liveDetail) {
       if (byId[liveDetail.id]) renderLiveDetail();
       else if (!liveDetail.finished) {
@@ -70018,8 +70059,6 @@ async function pollLive() {
         clearInterval(liveDetailTimer); renderLiveDetail();
       }
     }
-    const mv = document.getElementById("view-matches");
-    if (mv.classList.contains("active") && !query) renderMatches();
   } catch (err) { /* offline: keep last state, retry next cycle */ }
   liveBusy = false;
   scheduleLive();
