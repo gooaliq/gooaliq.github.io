@@ -1,17 +1,17 @@
 {
- "version_code": 6,
- "version_name": "0.5.0",
- "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.5.0.apk",
+ "version_code": 7,
+ "version_name": "0.6.0",
+ "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.6.0.apk",
  "changelog_fa": [
-  "برگه کامل بازی: درصدها با دلیل، ترکیب‌ها، بازیکن‌ها و تقابل ستاره‌ها",
-  "بخش زنده با تایم‌لاین دوسویه",
-  "برترین‌های امروز، جدول‌ها و گلزنان",
-  "صفحه تیم و «تیم‌های من»"
+  "بازی‌های امروز: کاشی مربعی هر رقابت به ترتیب معروفیت — بزن روش، بازی‌هاش باز می‌شه",
+  "بازی تموم‌شده: روش بزنی آمار خود بازی رو می‌بینی، نه پیش‌بینی",
+  "حس شیشه‌ای قوی‌تر و لهجه رنگی مخصوص هر لیگ",
+  "جدول‌ها: فرم پنج بازی آخر شد نقطه‌های رنگی جمع‌وجور"
  ],
  "changelog_en": [
-  "Full match sheet: percentages with evidence, lineups, players and the Star Duel",
-  "Live section with the two-sided timeline",
-  "Top Picks, tables and top scorers",
-  "Team pages and My Teams"
+  "Today's matches: a square tile per competition, ordered by fame — tap a tile to open its matches",
+  "Finished matches open the match's own stats, never the prediction",
+  "A stronger glass feel and a signature colour per league",
+  "Tables: last-5 form is now compact colour dots"
  ]
 }
