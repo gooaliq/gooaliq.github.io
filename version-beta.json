@@ -1,15 +1,11 @@
 {
- "version_code": 4,
- "version_name": "0.4.0",
- "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.4.0.apk",
+ "version_code": 5,
+ "version_name": "0.4.1",
+ "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.4.1.apk",
  "changelog_fa": [
-  "دیزاین لوکس: فونت اختصاصی فارسی و لاتین",
-  "بافت زمردی عمیق و طلاییِ متالیک",
-  "ناوبری شناور شیشه‌ای با آیکون‌های اختصاصی"
+  "برچسب‌های بلند ناوبری (مثل «برترین‌های امروز») وقتی انتخاب بشن، آرام اسکرول می‌شن تا کامل خونده بشن"
  ],
  "changelog_en": [
-  "Luxury design: dedicated Persian and Latin fonts",
-  "Deep emerald texture and metallic gold",
-  "Floating glass dock with custom icons"
+  "Long nav labels now slowly scroll when selected so they read in full"
  ]
 }
