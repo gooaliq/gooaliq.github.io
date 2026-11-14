@@ -333,7 +333,7 @@
 
 <script>
 const DATA = {
- "generated_at": "2026-11-14T20:14+03:30",
+ "generated_at": "2026-11-14T20:21+03:30",
  "today": "2026-11-14",
  "days": [
   {
@@ -129723,14 +129723,24 @@ function renderMatches() {
       const rows = ms.map(m => {
           const finished = ["FT", "AET", "PEN"].includes(m.status);
           const lv = (!finished && d.date === DATA.today) ? liveFor(m) : null;
+          // The pack status is a morning snapshot: a match the
+          // live poll has since seen finish (state "post") must
+          // show its final score, not fall back to its kickoff
+          // time as if it had never started (Kosovo–Israel,
+          // 2026-11-14: the row sat at "17:30" after full time
+          // because only the picks/sheets cleanup read the
+          // finished set — the row renderer never did).
+          const fin = (!finished && !lv) ? finFor(m) : null;
+          const finDone = finished || !!fin;
           const mid = lv ? `<span class="score livescore">${lv.hg} - ${lv.ag}</span>`
                     : finished ? `<span class="score">${m.home_goals} - ${m.away_goals}</span>`
+                    : fin && fin.hg != null && fin.ag != null ? `<span class="score">${fin.hg} - ${fin.ag}</span>`
                                : `<span class="score">${m.time}</span>`;
           const tap = m.sheet != null ? ` onclick="openSheet(${m.sheet})" style="cursor:pointer"` :
                       m.espn ? ` onclick="openReport(${m.espn})" style="cursor:pointer"` : "";
           const hint = (m.sheet != null || m.espn) ? `<span style="color:var(--accent);font-size:11px">›</span>` : "";
-          const tcell = lv ? `<span class="livedot"></span> ${lv.clock}` : (finished ? "FT" : m.time);
-          return `<div class="mrow"${tap}><span class="time ${finished ? "ft" : ""}"${lv ? ` style="color:#f44336"` : ""}>${tcell}</span>
+          const tcell = lv ? `<span class="livedot"></span> ${lv.clock}` : (finDone ? "FT" : m.time);
+          return `<div class="mrow"${tap}><span class="time ${finDone ? "ft" : ""}"${lv ? ` style="color:#f44336"` : ""}>${tcell}</span>
             <span class="team">${teamLink(m.home, shortName(m.home))}</span>${mid}<span class="team away">${teamLink(m.away, shortName(m.away))}</span>${hint}</div>`;
         }).join("");
       return acc(lg.name, `${ms.length}`, rows);
@@ -130249,6 +130259,14 @@ const numOr = v => (v === null || v === undefined || v === "") ? null : Number(v
 function liveFor(m) {
   if (m.espn && liveById[m.espn]) return liveById[m.espn];
   return liveByPair[pairKey(m.home, m.away)] || null;
+}
+// Finished counterpart of liveFor, fed by the same polls: the
+// parsed "post" event for a day-list row, matched by ESPN event
+// id first, then by normalised pairing — the same matching the
+// picks/sheets cleanup uses.
+function finFor(m) {
+  if (m.espn && liveFinIds[m.espn]) return liveFinIds[m.espn];
+  return liveFinPairs[pairKey(m.home, m.away)] || null;
 }
 // Finished-set companion of liveFor, fed by the same scoreboard
 // polls (state "post" events): a Top Pick counts as finished when
