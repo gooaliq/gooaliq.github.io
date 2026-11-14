@@ -313,7 +313,7 @@
 
 <script>
 const DATA = {
- "generated_at": "2026-11-14T19:00+03:30",
+ "generated_at": "2026-11-14T19:12+03:30",
  "today": "2026-11-14",
  "days": [
   {
@@ -129426,7 +129426,7 @@ const DATA = {
 // provides it — until then the settings section shows the
 // thank-you text with a «به‌زودی» note and NO number (never
 // invent one).
-const DONATE_CARD = "";
+const DONATE_CARD = "6219861447271676";
 // Share-card QR asset (APK download URL), generated server-side
 // once by gen_qr.py and inlined at build time.
 const QR_DATA = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbwAAAG8AQMAAACffoKcAAAABlBMVEUGOCr///8tXsDdAAACEklEQVR42u2cS27DMAxEiV7A97+lbqAisEQOmaQLowC1eEYRuI7eRhgww49l89k1DBAQEBDwG2h+Xa9nr8/8/MOy8WMPL0DAh9cS55x+c4tTJXp/lZahVcAmrd7Rct3cKh0rhN5ryjK0CniCVj2KeiBdARatAp6m1dv9DrEHQ6IuWgU8w696OJU0Cr8KeIxWJcH/6486AGC3VvVaRQAxrqsmUItd7Cpgn1/dv/jxVbGpvgatAjZq1W1quTeJsRaFLLQK2OsBXJya+4cTkKIWWgXsza1cruvhNUvxKuSNVgFb4up7qV9GBVLOFdVXdhWwSauS7Kdm65zhUbdo8auAzb2AXaoK16qhdewnxFXA1tyq1AE0uoaGk7DZVcCm3Or6aErNJ2NdtPRYAXs9wJ5ISa3/WDMstbTQKuAJ8wAmvlQGrjz8GjUrwFa/GprcKo36/x69jvYrcRWwN7cq0dUszVrnuhZaBWzzq5JeqQfwfy13DdAqYJdWo7vqdYC3eQBPr4irgEfMWZlpTUB9bB4dZFcBO7Uamb6402pl6QUAttcBpOZfpqyLTyCuAp5QX43DK8xqvGV+FfCM3Kq8zJKGA4cxvwp4il9VfcrpWPG8eAa0Ctiu1TLRKiWsfGgAuwrYr1U3rvq+QCquElcBDzkn8JrFr9aXAtAq4CHnrliaXdGWlrQG2FXABq1ykDIgICDg/4G/1JQpomwiFLcAAAAASUVORK5CYII=";
@@ -129496,6 +129496,10 @@ const I = {
     donate_thanks: "GoalIQ رایگان است و رایگان می‌ماند. اگر این اپ به کارت اومده و دوست داری از ادامه راهش حمایت کنی، می‌تونی با هر مبلغی که مایلی به شماره کارت زیر کمک کنی. از اعتمادت ممنونیم!",
     donate_soon: "شماره کارت به‌زودی اینجا قرار می‌گیرد — ممنون از لطفت!",
     donate_copy: "کپی شماره کارت", donate_copied: "کپی شد ✓",
+    donate_holder: "به نام: مهدی ایزدی",
+    donate_msg_label: "بعد از واریز، اگه دوست داشتی یه پیام هم برام بذار 💌",
+    donate_name_ph: "اسمت (اختیاری)", donate_msg_ph: "پیامت رو اینجا بنویس…",
+    donate_send: "ارسال پیام در واتساپ",
     offsides: "آفساید" },
   en: { app_title: "GoalIQ | گل‌آی‌کیو", app_sub: "Beta", nav_matches: "Matches",
     nav_picks: "Top Picks", nav_news: "News", nav_teams: "My Teams",
@@ -129561,6 +129565,10 @@ const I = {
     donate_thanks: "GoalIQ is free and stays free. If the app has been useful and you'd like to support its road ahead, you can chip in any amount to the card below. Thank you for your trust!",
     donate_soon: "The card number lands here soon — thank you!",
     donate_copy: "Copy card number", donate_copied: "Copied ✓",
+    donate_holder: "Holder: Mahdi Izadi",
+    donate_msg_label: "After donating, if you'd like, leave me a message too 💌",
+    donate_name_ph: "Your name (optional)", donate_msg_ph: "Write your message…",
+    donate_send: "Send via WhatsApp",
     offsides: "Offsides" }
 };
 let lang = "fa";
@@ -130552,6 +130560,13 @@ function donateRender() {
     h += `<div style="display:flex;gap:8px;align-items:center;margin-top:9px;flex-wrap:wrap">
       <span dir="ltr" style="font-weight:900;letter-spacing:1.5px;font-size:15px">${DONATE_CARD}</span>
       <button class="tchip" onclick="copyDonateCard(this)">${t("donate_copy")}</button></div>`;
+    h += `<div style="font-size:12px;color:var(--muted);margin-top:5px">${t("donate_holder")}</div>`;
+    const fld = "width:100%;padding:10px 13px;border-radius:13px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;font-size:13px;margin-top:8px";
+    h += `<div style="margin-top:13px">
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.9">${t("donate_msg_label")}</div>
+      <input id="donorName" placeholder="${t("donate_name_ph")}" style="${fld}">
+      <textarea id="donorMsg" rows="3" placeholder="${t("donate_msg_ph")}" style="${fld};resize:vertical;line-height:1.8"></textarea>
+      <button class="tchip" style="margin-top:9px" onclick="sendDonorMsg()">${t("donate_send")}</button></div>`;
   } else {
     h += `<div style="font-size:12px;color:var(--muted);margin-top:7px">${t("donate_soon")}</div>`;
   }
@@ -130574,6 +130589,25 @@ function copyDonateCard(btn) {
       navigator.clipboard.writeText)
     navigator.clipboard.writeText(DONATE_CARD).then(done).catch(fallback);
   else fallback();
+}
+// Donor message: the app is static (no backend/accounts), so the
+// message travels through Mahdi's public WhatsApp number — the
+// composed text opens in the donor's own WhatsApp, ready to send.
+function sendDonorMsg() {
+  const nEl = document.getElementById("donorName");
+  const mEl = document.getElementById("donorMsg");
+  const n = ((nEl && nEl.value) || "").trim();
+  const m = ((mEl && mEl.value) || "").trim();
+  let text;
+  if (lang === "fa") {
+    text = "سلام مهدی، " + (n ? `من ${n} هستم — ` : "") +
+      "برای حمایت از GoalIQ واریز کردم." + (m ? ` پیامم: ${m}` : "");
+  } else {
+    text = "Hi Mahdi, " + (n ? `I'm ${n} — ` : "") +
+      "I donated to support GoalIQ." + (m ? ` My message: ${m}` : "");
+  }
+  window.open("https://wa.me/989982494854?text=" +
+    encodeURIComponent(text), "_blank");
 }
 // ---------- App update (GoalIQ shell) ----------
 // Inside the Android shell the page reads the installed version via
