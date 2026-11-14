@@ -156,7 +156,7 @@
   .cmprow .lbl { text-align: center; font-size: 11.5px; color: var(--muted); font-weight: 700; }
   .bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 5px; }
   .bar { height: 6px; border-radius: 4px; background: var(--chip); overflow: hidden; }
-  .bar i { display: block; height: 100%; border-radius: 4px; }
+  .bar i { display: block; height: 100%; border-radius: 4px; transition: width .7s ease; }
   .bar.h i { background: var(--accent); float: right; }
   [dir="ltr"] .bar.h i { float: left; }
   .bar.a i { background: var(--accent2); }
@@ -247,6 +247,49 @@
   .livecard .lmin { color: #f44336; font-weight: 900; font-size: 13px; text-align: center; margin-top: 2px; }
   .livecard .scorers { font-size: 12px; color: var(--muted); line-height: 1.9; margin-top: 7px;
     border-top: 1px dashed var(--line); padding-top: 7px; }
+  /* Live timeline: two-sided event feed on a central spine —
+     home events on the start side, away on the far side, minute
+     badges riding the spine, newest first. The grid columns lay
+     out from the inline start, so RTL (FA) puts home on the
+     right and LTR (EN) on the left, mirroring automatically. */
+  .tl { position: relative; padding: 4px 0; }
+  .tl::before { content: ""; position: absolute; top: 8px; bottom: 8px; left: 50%;
+    width: 2px; margin-left: -1px; background: var(--line); border-radius: 2px; }
+  .tlrow { display: grid; grid-template-columns: 1fr 46px 1fr; gap: 4px;
+    align-items: start; padding: 4px 0; position: relative; }
+  .tlcell { display: flex; min-width: 0; }
+  .tlcell.h { justify-content: flex-end; }
+  .tlcell.a { justify-content: flex-start; }
+  .tlmin { text-align: center; font-size: 11px; font-weight: 900; direction: ltr;
+    background: var(--chip); border: 1px solid var(--line); border-radius: 999px;
+    padding: 2px 0; margin-top: 3px; position: relative; z-index: 1; }
+  .tlev { display: flex; gap: 6px; align-items: flex-start; max-width: 100%;
+    background: var(--chip); border: 1px solid var(--line); border-radius: 11px;
+    padding: 6px 8px; font-size: 12.5px; line-height: 1.55; }
+  .tlev .tlic { font-size: 14px; line-height: 1.4; flex: none; }
+  .tlev .tlbody { min-width: 0; }
+  .tlev .tlsub { display: block; color: var(--muted); font-size: 11px; font-weight: 600; }
+  .tlev.goal { border-color: var(--gold); font-size: 13px; }
+  .tlev.goal .tlic { font-size: 18px; }
+  .tlev.goal .tlscore { color: var(--gold); font-weight: 900; font-size: 12px; }
+  .tlev.yellow, .tlev.red { font-size: 12px; padding: 5px 8px; }
+  .tlev.sub { opacity: .72; font-size: 12px; }
+  .tlev.sub .up { color: #4caf50; font-size: 10px; }
+  .tlev.sub .dn { color: #f44336; font-size: 10px; }
+  .tlev.penmiss, .tlev.pensaved { border-style: dashed; }
+  .tlsep { display: flex; justify-content: center; padding: 8px 0;
+    position: relative; z-index: 1; }
+  .tlsep span { background: var(--chip); border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 12px; font-size: 11.5px; font-weight: 800;
+    color: var(--muted); }
+  .tlsep.ft span { border-color: var(--gold); color: var(--gold); }
+  /* One-shot "just happened" pop for events that arrive after
+     the first render of a match: transform/opacity only. */
+  .tlrow.tlnew .tlev { animation: tlNew 2.5s ease-out; border-color: var(--gold); }
+  .tlrow.tlnew .tlmin { border-color: var(--gold); color: var(--gold); }
+  @keyframes tlNew { 0% { opacity: .3; transform: scale(.94); }
+    35% { opacity: 1; transform: scale(1.03); }
+    100% { opacity: 1; transform: scale(1); } }
   /* Perf: off-screen repeated blocks skip style/layout/paint until
      scrolled near ("auto" remembers the real size after first render,
      so the scrollbar stays stable). Big scroll-jank win on budget GPUs. */
@@ -345,7 +388,7 @@
 
 <script>
 const DATA = {
- "generated_at": "2026-11-14T20:40+03:30",
+ "generated_at": "2026-11-14T21:06+03:30",
  "today": "2026-11-14",
  "days": [
   {
@@ -138288,6 +138331,9 @@ const I = {
     nav_live: "زنده", live_now: "بازی‌های زنده", live_soon: "به‌زودی شروع می‌شود",
     live_none: "الان بازی زنده‌ای نیست", live_rest: "بازی‌های امروز",
     live_note: "داده‌های زنده هر ۲۰ تا ۳۰ ثانیه از منابع عمومی تازه می‌شوند؛ کمی فاصله با ورزشگاه طبیعی است.",
+    tl_ht: "پایان نیمه اول", tl_ft: "پایان بازی", tl_pen: "پنالتی",
+    tl_og: "گل به خودی", tl_pen_missed: "پنالتی از دست رفته",
+    tl_pen_saved: "پنالتی مهار شده", tl_no_events: "هنوز اتفاقی ثبت نشده است",
     nav_tables: "جدول‌ها", col_team: "تیم", col_p: "بازی", col_w: "برد", col_d: "مساوی",
     col_l: "باخت", col_gf: "زده", col_ga: "خورده", col_gd: "تفاضل", col_pts: "امتیاز",
     group: "گروه", scorers: "گلزنان", goals_col: "گل", assists_col: "پاس گل",
@@ -138360,6 +138406,9 @@ const I = {
     nav_live: "Live", live_now: "Live now", live_soon: "Starting soon",
     live_none: "No live matches right now", live_rest: "Today's matches",
     live_note: "Live data refreshes every 20–30 seconds from public sources; a short delay vs the stadium is normal.",
+    tl_ht: "Half time", tl_ft: "Full time", tl_pen: "Penalty",
+    tl_og: "Own goal", tl_pen_missed: "Penalty missed",
+    tl_pen_saved: "Penalty saved", tl_no_events: "No events yet",
     nav_tables: "Tables", col_team: "Team", col_p: "P", col_w: "W", col_d: "D",
     col_l: "L", col_gf: "GF", col_ga: "GA", col_gd: "GD", col_pts: "Pts",
     group: "Group", scorers: "Top scorers", goals_col: "Goals", assists_col: "Assists",
@@ -139286,6 +139335,132 @@ function liveSummarySig(sum) {
   return bs + "#" + ke.length + "#" +
     (ke.length ? ((ke[ke.length - 1].clock || {}).displayValue || "") : "");
 }
+// ---------- Live timeline (two-sided, newest first) ----------
+// Built from the same summary keyEvents the old flat feed used;
+// the parse only adds structure (side, kind, scorer/assist,
+// running score). Events the old feed hid as nodes (kickoff,
+// period starts, half/full time markers) stay hidden — the
+// halftime marker returns as the HT separator instead. The
+// first render of a match never flags events as new: the seen
+// set is seeded silently, later arrivals get one highlight.
+const liveSeenEv = {};
+const livePrevBars = {};
+function tlMinOf(e) {
+  const dv = ((e.clock || {}).displayValue || "").trim();
+  const m = dv.match(/^(\d+)(?:\+(\d+))?/);
+  if (m) return { label: dv, base: Number(m[1]), stop: Number(m[2] || 0) };
+  const v = (e.clock || {}).value;
+  const mins = v != null ? Math.round(v / 60) : 0;
+  return { label: mins ? mins + "'" : "", base: mins, stop: 0 };
+}
+function tlNameOf(e) {
+  const ath = (e.athletesInvolved || [])[0];
+  if (ath && ath.displayName) return ath.displayName;
+  const text = e.text || "";
+  let m = text.match(/Own Goal by ([^,.]+)/i);
+  if (m) return m[1].trim();
+  m = text.match(/^[A-ZÀ-Þ][^.]*\.\s*([^()]+?)\s*\(/);
+  if (m) return m[1].trim();
+  m = text.match(/^([^()]{2,40}?)\s*\(/);
+  if (m) return m[1].trim();
+  return null;
+}
+function tlAssistOf(e) {
+  const ath = (e.athletesInvolved || [])[1];
+  if (ath && ath.displayName) return ath.displayName;
+  const m = (e.text || "").match(/Assisted by ([^.(]+?)(?:\s+with\b|\.|$)/);
+  return m ? m[1].trim() : null;
+}
+function liveTimeline(p, sum) {
+  const raw = sum.keyEvents || [];
+  const hasHT = raw.some(e => /Halftime/i.test((e.type || {}).text || ""));
+  const evs = raw.filter(e => e.type &&
+    !/Kickoff|Halftime|Full Time|Start/i.test(e.type.text || ""))
+    .map(e => {
+      const tt = e.type.text || "";
+      const team = (e.team || {}).displayName || "";
+      const pen = tt === "Penalty - Scored";
+      const og = /own goal/i.test(tt) || /Own Goal by/i.test(e.text || "");
+      const goal = e.scoringPlay === true || pen || /^Goal/.test(tt);
+      const kind = goal ? "goal" :
+        tt === "Penalty - Missed" ? "penmiss" :
+        tt === "Penalty - Saved" ? "pensaved" :
+        /Red Card/.test(tt) ? "red" :
+        /Yellow Card/.test(tt) ? "yellow" :
+        tt === "Substitution" ? "sub" : "other";
+      return { e, tt, team, min: tlMinOf(e), kind, pen, og,
+        side: team === p.home ? "h" : team === p.away ? "a" : "",
+        name: tlNameOf(e),
+        key: tt + "|" + ((e.clock || {}).displayValue || "") + "|" +
+          team + "|" + (e.text || "").slice(0, 48), score: null };
+    });
+  const skey = x => (x.min.base <= 45 ? 0 : 100000) +
+    x.min.base * 100 + x.min.stop;
+  let hg = 0, ag = 0, htH = 0, htA = 0;
+  evs.slice().sort((a, b) => skey(a) - skey(b)).forEach(x => {
+    if (x.kind !== "goal") return;
+    if (x.side === "h") hg++;
+    else if (x.side === "a") ag++;
+    else return;
+    x.score = fmt(hg) + " - " + fmt(ag);
+    if (x.min.base <= 45) { htH = hg; htA = ag; }
+  });
+  const desc = evs.slice().sort((a, b) => skey(b) - skey(a));
+  const seen = liveSeenEv[p.id];
+  const set = seen || new Set();
+  desc.forEach(x => { x.isNew = !!seen && !set.has(x.key); set.add(x.key); });
+  liveSeenEv[p.id] = set;
+  const nodeHtml = x => {
+    const ic = x.kind === "goal" ? "⚽" : x.kind === "penmiss" ? "❌" :
+      x.kind === "pensaved" ? "🧤" : x.kind === "yellow" ? "🟨" :
+      x.kind === "red" ? "🟥" : x.kind === "sub" ? "🔄" : "•";
+    let inner;
+    if (x.kind === "goal") {
+      const bits = [];
+      const as = tlAssistOf(x.e);
+      if (as) bits.push(t("p_assist") + ": " + as);
+      if (x.pen) bits.push(t("tl_pen"));
+      if (x.og) bits.push(t("tl_og"));
+      inner = `<span class="tlic">${ic}</span><span class="tlbody"><b>${x.name || x.tt}</b>` +
+        (x.score ? ` <span class="tlscore">${x.score}</span>` : "") +
+        (bits.length ? `<span class="tlsub">${bits.join(" · ")}</span>` : "") + `</span>`;
+    } else if (x.kind === "sub") {
+      const m = (x.e.text || "").match(
+        /Substitution[^.]*\.\s*(.+?)\s+replaces\s+(.+?)\.?\s*$/);
+      inner = m ?
+        `<span class="tlic">${ic}</span><span class="tlbody"><b><span class="up">▲</span> ${m[1]}</b><span class="tlsub"><span class="dn">▼</span> ${m[2]}</span></span>` :
+        `<span class="tlic">${ic}</span><span class="tlbody">${x.e.text || x.tt}</span>`;
+    } else if (x.kind === "penmiss" || x.kind === "pensaved") {
+      inner = `<span class="tlic">${ic}</span><span class="tlbody"><b>${x.name || ""}</b>` +
+        `<span class="tlsub">${t(x.kind === "penmiss" ? "tl_pen_missed" : "tl_pen_saved")}</span></span>`;
+    } else if (x.kind === "yellow" || x.kind === "red") {
+      inner = `<span class="tlic">${ic}</span><span class="tlbody"><b>${x.name || x.tt}</b></span>`;
+    } else {
+      inner = `<span class="tlic">${ic}</span><span class="tlbody">${x.e.text || x.name || x.tt}</span>`;
+    }
+    const card = `<div class="tlev ${x.kind}">${inner}</div>`;
+    const badge = `<div class="tlmin">${x.min.label}</div>`;
+    const cls = "tlrow" + (x.isNew ? " tlnew" : "");
+    return x.side === "a" ?
+      `<div class="${cls}"><div class="tlcell h"></div>${badge}<div class="tlcell a">${card}</div></div>` :
+      `<div class="${cls}"><div class="tlcell h">${card}</div>${badge}<div class="tlcell a"></div></div>`;
+  };
+  if (!desc.length) return { count: 0,
+    html: `<div style="color:var(--muted);font-size:12.5px;text-align:center;padding:8px 0">${t("tl_no_events")}</div>` };
+  const showHT = hasHT || p.finished || desc.some(x => x.min.base > 45);
+  const sepHT = `<div class="tlsep"><span>${t("tl_ht")} · ${fmt(htH)} - ${fmt(htA)}</span></div>`;
+  let html = `<div class="tl">`;
+  if (p.finished)
+    html += `<div class="tlsep ft"><span>${t("tl_ft")} · ${fmt(p.hg)} - ${fmt(p.ag)}</span></div>`;
+  let htDone = false;
+  desc.forEach(x => {
+    if (showHT && !htDone && x.min.base <= 45) { html += sepHT; htDone = true; }
+    html += nodeHtml(x);
+  });
+  if (showHT && !htDone) html += sepHT;
+  html += `</div>`;
+  return { count: desc.length, html };
+}
 function renderLiveDetail() {
   if (!liveDetail) return;
   const fresh = liveById[liveDetail.id];
@@ -139317,31 +139492,31 @@ function renderLiveDetail() {
       statKeys.forEach(k => {
         const hv = teams[p.home][k], av = teams[p.away][k];
         const mx = Math.max(hv, av, 0.01);
+        const hp = hv / mx * 100, ap = av / mx * 100;
+        // Glide: bars render at the previous poll's width and are
+        // then set to the new width (CSS transition on .bar i), so
+        // a changed value sweeps instead of jumping.
+        const pk = p.id + "|" + k;
+        const prev = livePrevBars[pk] || [hp, ap];
+        livePrevBars[pk] = [hp, ap];
         rowsHtml += `<div class="cmprow"><span class="v">${fmt(hv)}${k === "possessionPct" ? "%" : ""}</span>
           <div><div class="lbl">${t(REPORT_STAT_LABELS[k])}</div><div class="bars">
-          <span class="bar h"><i style="width:${hv / mx * 100}%"></i></span>
-          <span class="bar a"><i style="width:${av / mx * 100}%"></i></span></div></div>
+          <span class="bar h"><i data-w="${hp}" style="width:${prev[0]}%"></i></span>
+          <span class="bar a"><i data-w="${ap}" style="width:${prev[1]}%"></i></span></div></div>
           <span class="v">${fmt(av)}${k === "possessionPct" ? "%" : ""}</span></div>`;
       });
       h += acc(t("match_stats"), "", rowsHtml);
     }
-    const evs = (sum.keyEvents || []).filter(e => e.type &&
-      !/Kickoff|Halftime|Full Time|Start/i.test(e.type.text || ""));
-    if (evs.length) {
-      const rowsHtml = evs.map(e => {
-        const icon = /Goal|Penalty - Scored/.test(e.type.text) ? "⚽" :
-          e.type.text === "Yellow Card" ? "🟨" : e.type.text === "Red Card" ? "🟥" :
-          e.type.text === "Substitution" ? "🔁" : "•";
-        const ath = (e.athletesInvolved || [])[0];
-        const min = (e.clock || {}).displayValue ||
-          ((e.clock || {}).value != null ? Math.round(e.clock.value / 60) + "'" : "");
-        return `<div class="hrow"><span class="hd">${min}</span>
-          <span>${icon} ${ath ? ath.displayName : (e.text || e.type.text)} <small style="color:var(--muted)">${(e.team || {}).displayName || ""}</small></span></div>`;
-      }).join("");
-      h += acc(t("timeline"), `${evs.length}`, rowsHtml);
-    }
+    const tl = liveTimeline(p, sum);
+    h += acc(t("timeline"), tl.count ? `${tl.count}` : "", tl.html);
   }
   el.innerHTML = h;
+  if (typeof requestAnimationFrame === "function") {
+    const bars = el.querySelectorAll(".bar i[data-w]");
+    if (bars.length) requestAnimationFrame(() => {
+      bars.forEach(b => { b.style.width = b.dataset.w + "%"; });
+    });
+  }
 }
 async function fetchLiveSummary(id) {
   const p = liveById[id] || liveDetail;
