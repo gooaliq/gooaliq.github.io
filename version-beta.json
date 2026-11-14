@@ -1,15 +1,15 @@
 {
- "version_code": 3,
- "version_name": "0.3.0",
- "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.3.0.apk",
+ "version_code": 4,
+ "version_name": "0.4.0",
+ "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.4.0.apk",
  "changelog_fa": [
-  "عمق و کنتراست بیشتر: صحنه تیره‌تر، شیشه شفاف‌تر",
-  "خوانایی بهتر: ساعت بازی‌ها، اسم لیگ‌ها و برچسب‌های ناوبری روشن‌تر و درشت‌تر",
-  "رفع نمایش تکراری بعضی بازی‌ها"
+  "دیزاین لوکس: فونت اختصاصی فارسی و لاتین",
+  "بافت زمردی عمیق و طلاییِ متالیک",
+  "ناوبری شناور شیشه‌ای با آیکون‌های اختصاصی"
  ],
  "changelog_en": [
-  "More depth and contrast: a darker stage, clearer glass",
-  "Better legibility: kickoff times, league names and nav labels brighter and bigger",
-  "Fixed duplicate display of some fixtures"
+  "Luxury design: dedicated Persian and Latin fonts",
+  "Deep emerald texture and metallic gold",
+  "Floating glass dock with custom icons"
  ]
 }
