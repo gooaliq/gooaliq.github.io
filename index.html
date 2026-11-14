@@ -204,6 +204,26 @@
   .prow .pchips .pill { font-size: 11.5px; padding: 4px 8px; }
   .tagbench { font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px;
     background: var(--chip); border: 1px solid var(--line); color: var(--muted); }
+  /* Star duel (top of the players section) */
+  .dheads { display: flex; align-items: flex-start; gap: 8px; margin: 2px 0 8px; }
+  .dplayer { flex: 1; min-width: 0; }
+  .dplayer.awayp { text-align: end; }
+  .dpname { font-size: 13.5px; font-weight: 800; line-height: 1.5; }
+  .dpteam { color: var(--muted); font-size: 11.5px; font-weight: 600; margin-top: 1px; }
+  .dvs { flex: none; font-size: 10.5px; font-weight: 900; color: var(--gold);
+    border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; margin-top: 3px; }
+  .dstat { padding: 5px 0; }
+  .dstat + .dstat { border-top: 1px dashed var(--line); }
+  .dnums { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .dnums b { font-size: 13px; font-weight: 900; min-width: 46px; }
+  .dnums b.av { text-align: end; }
+  .dlab { color: var(--muted); font-size: 11.5px; font-weight: 700; text-align: center; flex: 1; }
+  .dbar { display: flex; height: 5px; border-radius: 3px; overflow: hidden;
+    background: var(--chip); margin-top: 4px; }
+  .dseg { display: block; height: 100%; }
+  .dseg.dh { background: var(--accent); }
+  .dseg.da { background: var(--accent2); }
+  .dseg.gold { background: linear-gradient(90deg, #f3d27a, var(--gold)); }
   .livedot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
     background: #f44336; animation: pulse 1.2s ease-in-out infinite; vertical-align: middle; }
   @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); }
@@ -313,7 +333,7 @@
 
 <script>
 const DATA = {
- "generated_at": "2026-11-14T19:12+03:30",
+ "generated_at": "2026-11-14T19:21+03:30",
  "today": "2026-11-14",
  "days": [
   {
@@ -129479,6 +129499,8 @@ const I = {
     ev_basis_app: "مبنا: فراوانی در هر حضور",
     ev_opp_mult: "ضریب دفاع حریف", ev_last: "حضور اخیر",
     squad_basis: "ترکیب بر اساس آخرین بازی",
+    star_duel: "تقابل ستاره‌ها", duel_goal: "گل ٪", duel_assist: "پاس گل ٪",
+    duel_ga: "گل+پاس گل ٪", duel_sot: "شوت در چارچوب ٪", duel_card: "کارت زرد ٪",
     nav_live: "زنده", live_now: "بازی‌های زنده", live_soon: "به‌زودی شروع می‌شود",
     live_none: "الان بازی زنده‌ای نیست", live_rest: "بازی‌های امروز",
     live_note: "داده‌های زنده هر ۲۰ تا ۳۰ ثانیه از منابع عمومی تازه می‌شوند؛ کمی فاصله با ورزشگاه طبیعی است.",
@@ -129548,6 +129570,8 @@ const I = {
     ev_basis_app: "Basis: per-appearance frequency",
     ev_opp_mult: "opponent defence factor", ev_last: "recent appearances",
     squad_basis: "Squad from the last match",
+    star_duel: "Star Duel", duel_goal: "Goal %", duel_assist: "Assist %",
+    duel_ga: "Goal+Assist %", duel_sot: "Shots on target %", duel_card: "Yellow card %",
     nav_live: "Live", live_now: "Live now", live_soon: "Starting soon",
     live_none: "No live matches right now", live_rest: "Today's matches",
     live_note: "Live data refreshes every 20–30 seconds from public sources; a short delay vs the stadium is normal.",
@@ -129901,6 +129925,38 @@ function openSheet(i) {
         <div class="pchips"><span class="pill">${t("p_score")} <b>${fmt(p.score)}%</b></span><span class="pill">${t("p_assist")} <b>${fmt(p.assist)}%</b></span><span class="pill">${t("p_ga")} <b>${fmt(p.goal_or_assist)}%</b></span><span class="pill">${t("shots_on_target")} <b>${fmt(p.sot)}%</b></span><span class="pill">${t("p_card")} <b>${fmt(p.card)}%</b></span></div>
         ${pev(p.evidence)}</div>`;
     };
+    // star duel: each team's best computed player (starters first,
+    // by goal+assist %, tie-break goal %) face to face, with the
+    // SAME stored percentages as their player rows — no recompute;
+    // no duel at all when either team has no computed row
+    const pickStar = rows => {
+      const comp = (rows || []).filter(p => !p.injured && !p.no_data);
+      if (!comp.length) return null;
+      const starters = comp.filter(p => p.role === "starter");
+      const pool = starters.length ? starters : comp;
+      return pool.slice().sort((a, b) =>
+        (b.goal_or_assist - a.goal_or_assist) || (b.score - a.score))[0];
+    };
+    const starH = pickStar(s.players.home), starA = pickStar(s.players.away);
+    if (starH && starA) {
+      const dhead = (p, team, away) => `<div class="dplayer${away ? " awayp" : ""}">
+        <div class="dpname">${p.name}${p.role === "bench" ? ` <span class="tagbench">${t("bench")}</span>` : ""}</div>
+        <div class="dpteam">${flag(team)}${team}${p.pos ? ` · ${p.pos}` : ""}</div></div>`;
+      const drow = (label, a, b) => {
+        const tot = a + b;
+        const aw = tot > 0 ? Math.round(a / tot * 100) : 50;
+        return `<div class="dstat"><div class="dnums"><b>${fmt(a)}%</b><span class="dlab">${label}</span><b class="av">${fmt(b)}%</b></div>
+          <div class="dbar"><span class="dseg dh${a > b ? " gold" : ""}" style="width:${aw}%"></span><span class="dseg da${b > a ? " gold" : ""}" style="width:${100 - aw}%"></span></div></div>`;
+      };
+      const duel = `<div class="duelbox"><div class="dheads">${dhead(starH, s.home, false)}<span class="dvs">VS</span>${dhead(starA, s.away, true)}</div>` +
+        drow(t("duel_goal"), starH.score, starA.score) +
+        drow(t("duel_assist"), starH.assist, starA.assist) +
+        drow(t("duel_ga"), starH.goal_or_assist, starA.goal_or_assist) +
+        drow(t("duel_sot"), starH.sot, starA.sot) +
+        drow(t("duel_card"), starH.card, starA.card) +
+        `</div>`;
+      h += acc(`⭐ ${t("star_duel")}`, "", duel);
+    }
     for (const [side, team] of [["home", s.home], ["away", s.away]]) {
       const rows = s.players[side];
       if (!rows || !rows.length) continue;
