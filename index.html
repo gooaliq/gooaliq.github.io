@@ -325,7 +325,7 @@
     <div class="row"><span data-i="share_title">کارت اشتراک بازی</span><span>📤</span></div>
     <img id="shareImg" alt="" style="width:100%;border-radius:14px;margin:12px 0;border:1px solid var(--line)">
     <div style="display:flex;gap:8px;padding-bottom:10px">
-      <a id="shareDl" class="updbtn" style="display:inline-block" download="goaliq-card.png" data-i="share_download">دانلود کارت</a>
+      <a id="shareDl" class="updbtn" style="display:inline-block" download="goaliq-card.png" onclick="return downloadShareCard(event)" data-i="share_download">دانلود کارت</a>
       <button id="shareNative" class="updbtn" style="border:0;font:inherit;cursor:pointer" data-i="share_send">اشتراک‌گذاری</button>
     </div>
   </div>
@@ -129480,6 +129480,7 @@ const I = {
     today: "امروز", yesterday: "دیروز", tomorrow: "فردا", search_ph: "جستجوی تیم…",
     probable_lineup: "ترکیب احتمالی", lineup_basis: "بر اساس ترکیب آخرین بازی",
     picks_note: "مرتب‌شده فقط بر اساس درصد، از بیشترین به کمترین",
+    picks_none: "همه بازی‌های این فهرست تموم شدن",
     comparison: "جدول مقایسه",
     ev_form_home: "فرم اخیر میزبان (میانگین)", ev_form_away: "فرم اخیر مهمان (میانگین)",
     ev_form_h2h: "میانگین رودرروهای اخیر",
@@ -129551,6 +129552,7 @@ const I = {
     today: "Today", yesterday: "Yesterday", tomorrow: "Tomorrow", search_ph: "Search a team…",
     probable_lineup: "Probable lineup", lineup_basis: "Based on the last match's lineup",
     picks_note: "Ranked purely by percentage, highest first",
+    picks_none: "Every match on this list has finished",
     comparison: "Comparison",
     ev_form_home: "Home recent form (avg)", ev_form_away: "Away recent form (avg)",
     ev_form_h2h: "Recent H2H average",
@@ -130013,7 +130015,14 @@ function acc(title, expTxt, inner) {
 function renderPicks() {
   const el = document.getElementById("view-picks");
   let h = `<div class="section-title">${t("nav_picks")}<small>${t("picks_note")}</small></div>`;
-  DATA.top_picks.forEach(p => {
+  // A match's picks are dropped as soon as the match is finished
+  // (bug fix, Mahdi 2026-11-14): the pack is rebuilt only in the
+  // morning, so the finished set comes from the live poll's ESPN
+  // scoreboards — see pickFinished / pollLive.
+  const open = DATA.top_picks.filter(p => !pickFinished(p));
+  if (!open.length)
+    h += `<div class="glass empty"><span class="big">🏁</span>${t("picks_none")}</div>`;
+  open.forEach(p => {
     const si = DATA.sheets.findIndex(s => `${s.home} - ${s.away}` === p.match);
     const [ph, pa] = p.match.split(" - ");
     h += `<div class="glass pick" onclick="openSheet(${si})">
@@ -130202,6 +130211,7 @@ const LIVE_LEAGUES = [
   ["fifa.friendly", "Friendlies"], ["fifa.world", "World Cup"]];
 const ESPN_API = "https://site.api.espn.com/apis/site/v2/sports/soccer";
 let liveById = {}, liveByPair = {}, liveSoon = [], liveDetail = null;
+let liveFinIds = {}, liveFinPairs = {}, liveFinSig = "";
 let liveTimer = null, liveDetailTimer = null, liveBusy = false;
 let liveDetailSig = "";
 let liveSig = "";
@@ -130234,6 +130244,17 @@ const numOr = v => (v === null || v === undefined || v === "") ? null : Number(v
 function liveFor(m) {
   if (m.espn && liveById[m.espn]) return liveById[m.espn];
   return liveByPair[pairKey(m.home, m.away)] || null;
+}
+// Finished-set companion of liveFor, fed by the same scoreboard
+// polls (state "post" events): a Top Pick counts as finished when
+// its ESPN event id is in the set (when the pick or its sheet
+// carries one) or its normalised pairing is.
+function pickFinished(p) {
+  if (p.espn && liveFinIds[p.espn]) return true;
+  const s = DATA.sheets.find(x => `${x.home} - ${x.away}` === p.match);
+  if (s && s.espn && liveFinIds[s.espn]) return true;
+  const [ph, pa] = p.match.split(" - ");
+  return !!liveFinPairs[pairKey(ph, pa)];
 }
 function tehranDates() {
   const f = d => d.toLocaleDateString("en-CA", { timeZone: "Asia/Tehran" }).replace(/-/g, "");
@@ -130271,6 +130292,7 @@ async function pollLive() {
   liveBusy = true;
   try {
     const dates = tehranDates(), byId = {}, byPair = {}, soon = [];
+    const finIds = {}, finPairs = {};
     await Promise.all(LIVE_LEAGUES.map(async ([slug, league]) => {
       for (const dt of dates) {
         try {
@@ -130280,6 +130302,9 @@ async function pollLive() {
             const p = parseLiveEvent(slug, league, e);
             if (!p) return;
             if (p.state === "in") { byId[p.id] = p; byPair[pairKey(p.home, p.away)] = p; }
+            else if (p.state === "post") {
+              finIds[p.id] = p; finPairs[pairKey(p.home, p.away)] = p;
+            }
             else if (p.state === "pre" && p.ts > Date.now() - 600000 &&
                      p.ts - Date.now() <= 1800000) soon.push(p);
           });
@@ -130287,6 +130312,7 @@ async function pollLive() {
       }
     }));
     liveById = byId; liveByPair = byPair;
+    liveFinIds = finIds; liveFinPairs = finPairs;
     liveSoon = soon.sort((a, b) => a.ts - b.ts);
     // Render-on-change: only the visible list re-renders, and only
     // when the live payload actually changed (score, clock, scorer,
@@ -130297,6 +130323,14 @@ async function pollLive() {
       if (document.getElementById("view-live").classList.contains("active")) renderLive();
       const mv = document.getElementById("view-matches");
       if (mv.classList.contains("active") && !query) renderMatches();
+    }
+    // Picks cleanup (render-on-change, same discipline): only when
+    // the finished set itself changed, and only an open Picks view
+    // re-renders — a closed one filters on its next open anyway.
+    const finSig = Object.keys(finPairs).sort().join(",");
+    if (finSig !== liveFinSig) {
+      liveFinSig = finSig;
+      if (document.getElementById("view-picks").classList.contains("active")) renderPicks();
     }
     if (liveDetail) {
       if (byId[liveDetail.id]) renderLiveDetail();
@@ -130508,10 +130542,12 @@ async function drawCardLogo(ctx, x, y, size) {
   }
 }
 let shareBlob = null;
+let shareCanvas = null;
 async function buildShareCard(i) {
   const s = DATA.sheets[i];
   if (!s) return;
   const cv = document.createElement("canvas");
+  shareCanvas = cv;
   cv.width = 1080; cv.height = 1080;
   const ctx = cv.getContext("2d");
   const bg = ctx.createLinearGradient(0, 0, 1080, 1080);
@@ -130607,6 +130643,28 @@ document.getElementById("shareNative").addEventListener("click", async () => {
       title: "GoalIQ" });
   } catch (e) { /* cancelled/unsupported: download remains */ }
 });
+// Share-card download inside the installed shell: the card PNG sits
+// behind a blob: URL, and Android WebView silently ignores an
+// <a download> click on blob: (its DownloadListener only fires for
+// http(s) URLs), so the button did nothing in the app. When the
+// GoalIQShell bridge offers saveImage, hand it the PNG as base64 —
+// the shell writes it to Pictures/GoalIQ and toasts «ذخیره شد».
+// In a plain browser (no bridge) return true and let the anchor's
+// blob: download proceed exactly as before.
+function downloadShareCard(e) {
+  const shell = (typeof window !== "undefined" && window.GoalIQShell) || null;
+  if (shell && typeof shell.saveImage === "function" && shareCanvas) {
+    try {
+      const b64 = String(shareCanvas.toDataURL("image/png")).split(",")[1] || "";
+      if (b64) {
+        if (e && e.preventDefault) e.preventDefault();
+        shell.saveImage(b64, "goaliq-card.png");
+        return false;
+      }
+    } catch (err) { /* bridge failed: fall through to the download */ }
+  }
+  return true;
+}
 // ---------- Donate («حمایت از ما») ----------
 function donateRender() {
   const box = document.getElementById("donateBox");
