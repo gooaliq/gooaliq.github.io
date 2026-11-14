@@ -1,11 +1,17 @@
 {
- "version_code": 5,
- "version_name": "0.4.1",
- "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.4.1.apk",
+ "version_code": 6,
+ "version_name": "0.5.0",
+ "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-0.5.0.apk",
  "changelog_fa": [
-  "برچسب‌های بلند ناوبری (مثل «برترین‌های امروز») وقتی انتخاب بشن، آرام اسکرول می‌شن تا کامل خونده بشن"
+  "برگه کامل بازی: درصدها با دلیل، ترکیب‌ها، بازیکن‌ها و تقابل ستاره‌ها",
+  "بخش زنده با تایم‌لاین دوسویه",
+  "برترین‌های امروز، جدول‌ها و گلزنان",
+  "صفحه تیم و «تیم‌های من»"
  ],
  "changelog_en": [
-  "Long nav labels now slowly scroll when selected so they read in full"
+  "Full match sheet: percentages with evidence, lineups, players and the Star Duel",
+  "Live section with the two-sided timeline",
+  "Top Picks, tables and top scorers",
+  "Team pages and My Teams"
  ]
 }
