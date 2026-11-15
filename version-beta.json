@@ -1,15 +1,1 @@
-{
- "version_code": 11,
- "version_name": "1.0.2",
- "apk_url": "https://gooaliq.github.io/releases/beta/GoalIQ-Beta-1.0.2.apk",
- "changelog_fa": [
-  "طرح تازه و اختصاصی GoalIQ برای آمار بازی، در بخش زنده و گزارش‌ها: عدد تیم پیشتاز طلایی می‌شود و زیر هر آمار یک نوار شیشه‌ای از الماس طلاییِ مرکز به دو طرف رشد می‌کند تا برتری هر تیم در یک نگاه دیده شود",
-  "مالکیت توپ حالا قهرمان بخش آمار است؛ نوار تقسیم طلایی ـ نقره‌ای روی پنل شیشه‌ای خودش",
-  "رفع مشکل پرچم انگلیس، اسکاتلند و ولز که در بعضی گوشی‌ها مربع‌مربع دیده می‌شد؛ حالا کد سه‌حرفی تیم نمایش داده می‌شود"
- ],
- "changelog_en": [
-  "A new, original GoalIQ design for match statistics, live and in match reports: the leading team's number turns gold, and under every stat a glass ribbon grows from a gold diamond at the centre so each team's edge shows at a glance",
-  "Possession is now the hero of the stats block: the gold-and-silver split bar seated in its own glass panel",
-  "Fixed England, Scotland and Wales flags rendering as boxes on some phones; those teams now show their 3-letter code"
- ]
-}
+{"apk_url":"https://gooaliq.github.io/releases/beta/GoalIQ-Beta-1.0.3.apk","changelog_en":["Confirmed lineups now appear on a minimal glass pitch: both starting elevens on an emerald pitch, each player a glass chip with his number and short name; every team's shape is derived from the players' real positions and shown beside the team name","Bench and absentee lists get cleaner new glass rows; probable lineups stay lists, clearly labelled as probable","Tap any player on the pitch to jump straight to his row in that match's players section"],"changelog_fa":["ترکیب‌های رسمی حالا روی یک زمین شیشه‌ای مینیمال دیده می‌شن: ترکیب اصلی هر دو تیم روی چمن زمردی، با شماره و اسم کوتاه هر بازیکن؛ آرایش هر تیم از روی پست‌های واقعی بازیکن‌هاش چیده می‌شه و کنار اسم تیم هم نوشته می‌شه","نیمکت و غایب‌ها ردیف‌های شیشه‌ای تازه و تمیزتر گرفتن؛ ترکیب‌های احتمالی همچنان لیست می‌مونن و با برچسب «احتمالی» مشخصن","با لمس هر بازیکن روی زمین، مستقیم می‌ری به ردیف خودش در بخش بازیکن‌های همون بازی"],"version_code":12,"version_name":"1.0.3"}
